@@ -109,6 +109,7 @@ void Move(){
 	int tempSpeed = 0;
 	int error = 4 - max_no;//heading direction error , if PD4==max_no, then no error
 	int steer = error * steer_sensitivity;//steering effort is proportioinal to heading error
+    // negative
 	int speed = -forward_speed;//forward speed (normal speed)
 
 	if(PD_sum < ambient_level){ // looking for the beacon if background noise is
@@ -116,6 +117,7 @@ void Move(){
 		steer = -spin_speed;//search mode =>spin
 	}
 	if(PD_sum > slow_level){//Beacon is near!
+        // negative
 		speed = -slow_speed;//slow down
 	}
 	// deleted the stop statement when the beacon is found, because we'll	 use the limit switch to stop the motors	which is more reliable.
