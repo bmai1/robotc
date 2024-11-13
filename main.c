@@ -1,4 +1,5 @@
 #pragma config(Sensor, in1,    analog1,        sensorAnalog)
+#pragma config(Sensor, dgtl5,  bumper,         sensorDigitalIn)
 #pragma config(Sensor, dgtl6,  limit,          sensorDigitalIn)
 #pragma config(Sensor, dgtl10, digital10,      sensorDigitalOut)
 #pragma config(Sensor, dgtl11, digital11,      sensorDigitalOut)
@@ -9,11 +10,14 @@
 
 #include "gotobeacon.c"
 #include "arm.c"
+#include "escape1.c"
+#include "escape2.c"
 
 
 task main() {
-	bool foundRed = false;
-	bool foundGreen = false;
+	bool found_red = false;
+	bool pushed_button = false;
+	bool found_green = false;
 
 	freq = 0; // 0 = 1 khz (red)
 	ambient_level = 200;
@@ -26,8 +30,8 @@ task main() {
 	spin_speed = -50;
 	SensorValue[digital10] = freq;
 
-	// state 1: find Red Beacon
-	while (!foundRed) {
+	// state 1: find red beacon
+	while (!found_red) {
 		ReadPD();
 		Find_max();
 		Move();
@@ -35,24 +39,48 @@ task main() {
 		if (SensorValue[limit] == 0) {
 			motor[port1] = 0;
 			motor[port10] = 0;
-			foundRed = true;
-			wait1Msec(10000);
-
-			while (PD_sum > ambient_level) {
-				armDown();
-				wait1Msec(500);
-				armUp();
-				wait1Msec(500);
-			}
+			found_red = true;
+			wait1Msec(1000);
 		}
 	}
 
+	// state 2: push button
+	while (!pushed_button) {
+		ReadPD();
+		Find_max();
+		if (PD_sum > ambient_level) {
+			armDown(100);
+			wait1Msec(500);
+			armUp(100);
+			wait1Msec(500);
+		}
+		else {
+			pushed_button = true;
+			wait1Msec(5000);
+			motor[port1] = -forward_speed;
+			motor[port10] = -forward_speed;
+			wait1Msec(500);
+		}
+	}
+
+	// state 3: find green
 	freq = 1; // 1 = 10 khz (green)
-	while (!foundGreen) {
+	SensorValue[digital10] = freq;
+
+	while (!found_green) {
 		ReadPD();
 		Find_max();
 		Move();
+		if (SensorValue[limit] == 0) {
+			motor[port1] = 0;
+			motor[port10] = 0;
+			found_green = true;
+			wait1Msec(1000);
+		}
 	}
 
-	// run escape.c
+	// state 4: exit arena
+	armDown(100);
+	wait1Msec(1000);
+	escape2();
 }
