@@ -6,9 +6,9 @@ void escape() {
         // sensor == 0 means bumper is pressed
         if (SensorValue[bumper] == 0) {
             // move forward
-        	motor[port1] = -60;
-        	motor[port10] = 60;
-        	wait1Msec(250);
+            motor[port1] = -60;
+            motor[port10] = 60;
+            wait1Msec(250);
 
             // turn
             motor[port1] = -60;  
@@ -16,9 +16,9 @@ void escape() {
             wait1Msec(500);
         }
         else {
-        	// move backward
-			motor[port1] = 60;
-			motor[port10] = -60;
+            // move backward
+            motor[port1] = 60;
+            motor[port10] = -60;
       	}
     }
 }
