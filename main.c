@@ -10,8 +10,7 @@
 
 #include "gotobeacon.c"
 #include "arm.c"
-#include "escape1.c"
-#include "escape2.c"
+#include "escape.c"
 
 
 task main() {
@@ -56,10 +55,11 @@ task main() {
 		}
 		else {
 			pushed_button = true;
-			wait1Msec(5000);
-			motor[port1] = -forward_speed;
-			motor[port10] = -forward_speed;
-			wait1Msec(500);
+			wait1Msec(1000);
+			// move back from red beacon
+			motor[port1] = 60;
+			motor[port10] = -60;
+			wait1Msec(750);
 		}
 	}
 
@@ -82,5 +82,5 @@ task main() {
 	// state 4: exit arena
 	armDown(100);
 	wait1Msec(1000);
-	escape2();
+	escape();
 }
